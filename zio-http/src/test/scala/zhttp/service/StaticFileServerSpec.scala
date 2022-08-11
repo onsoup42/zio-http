@@ -11,8 +11,7 @@ import java.io.File
 
 object StaticFileServerSpec extends HttpRunnableSpec {
 
-  private val env =
-    EventLoopGroup.nio() ++ DynamicServer.live ++ Scope.default
+  private val env = DynamicServer.live ++ Scope.default
 
   override def spec = suite("StaticFileServer") {
     serve(DynamicServer.app).as(List(staticSpec))

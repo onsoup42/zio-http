@@ -1,7 +1,7 @@
 package zhttp
 
-import zhttp.service.EventLoopGroup
+import zio.Scope
 
 package object internal {
-  type HttpEnv = EventLoopGroup with DynamicServer
+  type HttpEnv = Scope with DynamicServer
 }

@@ -1,7 +1,13 @@
 package zhttp.service
 
 import io.netty.bootstrap.Bootstrap
-import io.netty.channel.{Channel => JChannel, ChannelFactory => JChannelFactory, ChannelFuture => JChannelFuture, ChannelInitializer, EventLoopGroup => JEventLoopGroup}
+import io.netty.channel.{
+  ChannelInitializer,
+  Channel => JChannel,
+  ChannelFactory => JChannelFactory,
+  ChannelFuture => JChannelFuture,
+  EventLoopGroup => JEventLoopGroup,
+}
 import io.netty.handler.codec.http._
 import io.netty.handler.codec.http.websocketx.WebSocketClientProtocolHandler
 import io.netty.handler.proxy.HttpProxyHandler
@@ -143,9 +149,9 @@ final case class Client[R](rtm: HttpRuntime[R], cf: JChannelFactory[JChannel], e
 }
 
 object Client {
-  def make[R](channelType: ChannelType = ChannelType.AUTO): ZIO[R with EventLoopGroup, Nothing, Client[R]] = for {
+  def make[R](channelType: ChannelType = ChannelType.AUTO): ZIO[R with Scope, Nothing, Client[R]] = for {
     cf <- ChannelFactory.Live.get(channelType)
-    el <- ZIO.service[JEventLoopGroup]
+    el <- EventLoopGroup.Live.get(channelType)(0)
     zx <- HttpRuntime.default[R]
   } yield service.Client(zx, cf, el)
 
@@ -156,7 +162,7 @@ object Client {
     content: HttpData = HttpData.empty,
     ssl: ClientSSLOptions = ClientSSLOptions.DefaultSSL,
     channelType: ChannelType = ChannelType.AUTO,
-  ): ZIO[EventLoopGroup, Throwable, Response] =
+  ): ZIO[Scope, Throwable, Response] =
     for {
       uri <- ZIO.fromEither(URL.fromString(url))
       res <- request(
@@ -168,7 +174,7 @@ object Client {
   def request(
     request: Request,
     clientConfig: Config,
-  ): ZIO[EventLoopGroup, Throwable, Response] =
+  ): ZIO[Scope, Throwable, Response] =
     for {
       clt <- make[Any](clientConfig.channelType)
       res <- clt.request(request, clientConfig)
@@ -180,7 +186,7 @@ object Client {
     headers: Headers = Headers.empty,
     sslOptions: ClientSSLOptions = ClientSSLOptions.DefaultSSL,
     channelType: ChannelType = ChannelType.AUTO,
-  ): ZIO[R with EventLoopGroup with Scope, Throwable, Response] = {
+  ): ZIO[R with Scope, Throwable, Response] = {
     for {
       clt <- make[R](channelType)
       uri <- ZIO.fromEither(URL.fromString(url))

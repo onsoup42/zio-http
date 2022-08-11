@@ -10,8 +10,7 @@ import zio.{Scope, ZIO, durationInt}
 
 object StaticServerSpec extends HttpRunnableSpec {
 
-  private val env =
-    EventLoopGroup.nio() ++ DynamicServer.live ++ Scope.default
+  private val env = DynamicServer.live ++ Scope.default
 
   private val staticApp = Http.collectZIO[Request] {
     case Method.GET -> !! / "success"       => ZIO.succeed(Response.ok)
@@ -88,7 +87,7 @@ object StaticServerSpec extends HttpRunnableSpec {
         .as(
           List(serverStartSpec, staticAppSpec, nonZIOSpec, throwableAppSpec),
         )
-    }.provideSomeLayerShared[TestEnvironment](env) @@ timeout(30 seconds)
+    }.provideSomeLayerShared[TestEnvironment](env) @@ timeout(60 seconds)
 
   def staticAppSpec    = suite("StaticAppSpec")(
     test("200 response") {

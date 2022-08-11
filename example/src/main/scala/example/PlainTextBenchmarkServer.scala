@@ -2,7 +2,7 @@ package example
 
 import io.netty.util.AsciiString
 import zhttp.http._
-import zhttp.service.{EventLoopGroup, Server}
+import zhttp.service.Server
 import zio._
 
 /**
@@ -42,7 +42,6 @@ object Main extends ZIOAppDefault {
   val run: UIO[ExitCode] =
     app
       .flatMap(server(_).start)
-      .provideLayer(EventLoopGroup.auto(8))
       .exitCode
 
   private def server(app: HttpApp[Any, Nothing]) =
