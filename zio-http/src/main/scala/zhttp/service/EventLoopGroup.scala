@@ -15,7 +15,6 @@ import java.util.concurrent.Executor
 object EventLoopGroup {
 
   object Live {
-
     def get(serverChannelType: ChannelType): Int => ZIO[Scope, Nothing, channel.EventLoopGroup] =
       serverChannelType match {
         case ChannelType.NIO    => nio

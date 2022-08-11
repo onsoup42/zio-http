@@ -159,14 +159,14 @@ object Client {
     url: String,
     method: Method = Method.GET,
     headers: Headers = Headers.empty,
-    content: HttpData = HttpData.empty,
+    content: Body = Body.empty,
     ssl: ClientSSLOptions = ClientSSLOptions.DefaultSSL,
     channelType: ChannelType = ChannelType.AUTO,
   ): ZIO[Scope, Throwable, Response] =
     for {
       uri <- ZIO.fromEither(URL.fromString(url))
       res <- request(
-        Request(Version.Http_1_1, method, uri, headers, data = content),
+        Request(Version.Http_1_1, method, uri, headers, body = content),
         clientConfig = Config(ssl = Some(ssl)).withChannelType(channelType),
       )
     } yield res
